@@ -28,15 +28,18 @@ def find_path(source_point, destination_point, mesh):
 
 		if current_box == dest_box:
 			break
-
-		for next in mesh['adj'][current_box]:
-			if next not in prev:
-				queue.put(next)
-				prev[next] = current_box
-				prev_box[next] = current_box
-				if next != dest_box:
-					detail_points[next] = find_detail_points(detail_points[current_box], next)
-				visited.append(next)
+		try:
+			for next in mesh['adj'][current_box]:
+				if next not in prev:
+					queue.put(next)
+					prev[next] = current_box
+					prev_box[next] = current_box
+					if next != dest_box:
+						detail_points[next] = find_detail_points(detail_points[current_box], next)
+					visited.append(next)
+		except:
+			print "Not a valid starting point."
+			return ([], [])
 
 	if current_box == dest_box:
 		while current_box:
