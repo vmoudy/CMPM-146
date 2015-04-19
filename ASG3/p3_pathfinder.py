@@ -17,6 +17,9 @@ def find_path(source_point, destination_point, mesh):
 	dest_box = find_source_box(destination_point, mesh)
 	visited.append(dest_box)
 
+	if source_box == dest_box:
+		return ([(source_point, destination_point)], [(source_box)])
+
 	queue.put(source_box)
 	prev[source_box] = None
 	prev_box[source_box] = source_box
@@ -34,8 +37,8 @@ def find_path(source_point, destination_point, mesh):
 					queue.put(next)
 					prev[next] = current_box
 					prev_box[next] = current_box
-					if next != dest_box:
-						detail_points[next] = find_detail_points(detail_points[current_box], next)
+					
+					detail_points[next] = find_detail_points(detail_points[current_box], next)
 					visited.append(next)
 		except:
 			print "Not a valid starting point."
@@ -44,7 +47,10 @@ def find_path(source_point, destination_point, mesh):
 	if current_box == dest_box:
 		while current_box:
 			path.append((detail_points[prev_box[current_box]], detail_points[current_box]))
+			if prev[current_box] == None:
+				path.append((detail_points[dest_box], destination_point))
 			current_box = prev[current_box]
+
 	else:
 		print "No path possible!"
 		return ([], [])
