@@ -10,8 +10,6 @@ def find_path(source_point, destination_point, mesh):
 	detail_points = {}
 	path = []
 
-	print str(source_point) + str(destination_point)
-
 	source_box = find_source_box(source_point, mesh)
 	visited.append(source_box)
 	dest_box = find_source_box(destination_point, mesh)
