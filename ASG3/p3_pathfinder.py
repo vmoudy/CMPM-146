@@ -73,7 +73,7 @@ def find_path(source_point, destination_point, mesh):
 				if next not in cost_so_far or new_cost < cost_so_far[next]:
 					detail_points[next] = find_detail_points(detail_points[current_box], next)
 					cost_so_far[next] = new_cost
-					priority = new_cost + heuristic(detail_points[next], destination_point)
+					priority = new_cost + heuristic(destination_point, detail_points[next])
 					queue.put(next, priority)
 					prev[next] = current_box
 					prev_box[next] = current_box
