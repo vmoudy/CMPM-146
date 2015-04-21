@@ -1,6 +1,7 @@
 from heapq import heappush, heappop
 import random
 import Queue
+from math import sqrt
 
 def find_path(source_point, destination_point, mesh):
 	#BFS queue
@@ -72,7 +73,7 @@ def find_path(source_point, destination_point, mesh):
 				if next not in cost_so_far or new_cost < cost_so_far[next]:
 					detail_points[next] = find_detail_points(detail_points[current_box], next)
 					cost_so_far[next] = new_cost
-					priority = heuristic(detail_points[next], destination_point)
+					priority = new_cost + heuristic(detail_points[next], destination_point)
 					queue.put(next, priority)
 					prev[next] = current_box
 					prev_box[next] = current_box
@@ -127,8 +128,9 @@ def find_detail_points(current_coords, end_box):
 def heuristic(src, dest):
 	x,y = src
 	x1, y1 = dest
-	#print abs(x - x1) + abs(y - y1)
-	return abs(x - x1) + abs(y - y1)
+	dx = abs(x - x1)
+	dy = abs(y - y1)
+	return  sqrt(dx * dx + dy * dy)
 
 def cost_path(src, dest):
 	x, y = src
