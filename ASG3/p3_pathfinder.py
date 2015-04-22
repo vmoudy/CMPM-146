@@ -1,138 +1,109 @@
-from heapq import heappush, heappop
-import random
-import Queue
 from math import sqrt
+from heapq import heappush, heappop
 
-def find_path(source_point, destination_point, mesh):
-	#BFS queue
-	#queue = Queue.Queue()
-
-	#A* queue
-	queue = Queue.PriorityQueue()
-
+def find_path(source, destination, mesh):
+	dist = {}
 	prev = {}
-	cost_so_far = {}
-	prev_box = {}
-	visited = []
-	detail_points = {}
+	queue = []
 	path = []
+	detail_points = {}
+	sourceBox = None
+	alt = 0
 
-	source_box = find_source_box(source_point, mesh)
-	visited.append(source_box)
-	dest_box = find_source_box(destination_point, mesh)
-	visited.append(dest_box)
+	sourceBox = find_source_box(source, mesh)
+	dist[sourceBox] = 0
 
-	if source_box == dest_box:
-		return ([(source_point, destination_point)], [(source_box)])
+	destBox = find_source_box(destination, mesh)
 
-	#BFS queue
-	#queue.put(source_box)
+	if sourceBox == destBox:
+		return ([(source, destination)], [(sourceBox)])
 
-	#A* queue
-	queue.put(source_box, 0)
-	cost_so_far[source_box] = 0
+	queue = [(dist[sourceBox],sourceBox,source)]
+	prev[sourceBox] = None
+	
+	try:
+		while queue:
+			currentBox = heappop(queue)
 
-	prev[source_box] = None
-	prev_box[source_box] = source_box
-	detail_points[source_box] = source_point
-	detail_points[dest_box] = destination_point
-
-	#BFS with early exit
-	"""while not queue.empty():
-		current_box = queue.get()		
-
-		if current_box == dest_box:
-			break
-		try:
-			for next in mesh['adj'][current_box]:
-				if next not in prev:
-					queue.put(next)
-					prev[next] = current_box
-					prev_box[next] = current_box
-					
-					detail_points[next] = find_detail_points(detail_points[current_box], next)
-					visited.append(next)
-		except:
+			if in_box(destination, currentBox): 
+				destBox = currentBox[1]
+				break
+			
+			for next_box in mesh['adj'][currentBox[1]]:
+				alt = dist[currentBox[1]] + coor_distance((currentBox[2][0],currentBox[2][1]), find_detail_points((currentBox[2][0],currentBox[2][1]), next_box))
+				
+				if next_box not in prev or alt < dist[next_box]:
+					dist[next_box] = alt
+					priority = alt  + heuristic(destination, find_detail_points((currentBox[2][0],currentBox[2][1]), next_box))
+					prev[next_box] = currentBox[1]
+					heappush(queue,(priority, next_box, find_detail_points((currentBox[2][0],currentBox[2][1]), next_box)))
+	except:
 			print "Not a valid starting point."
 			return ([], [])
-	"""
 
+	if in_box(destination, currentBox):
+		currentBox = currentBox[1]
+		while currentBox != sourceBox:
+			path.append(currentBox)
+			currentBox = prev[currentBox]
+		path.reverse()
+		for box in path:
+			detail_points[box] = (source,find_detail_points(source, box))
+			if box != destBox:
 
-	#A*
-	while not queue.empty():
-		current_box = queue.get()
-
-		if current_box == dest_box:
-			break
-
-		try:
-			for next in mesh['adj'][current_box]:
-				src = detail_points[current_box]
-				dest = find_detail_points(src, next)
-				new_cost = cost_so_far[current_box] + cost_path(src, dest)
-				if next not in cost_so_far or new_cost < cost_so_far[next]:
-					detail_points[next] = find_detail_points(detail_points[current_box], next)
-					cost_so_far[next] = new_cost
-					priority = new_cost + heuristic(destination_point, detail_points[next])
-					queue.put(next, priority)
-					prev[next] = current_box
-					prev_box[next] = current_box
-					visited.append(next)
-		except:
-			print "Not a valid starting point."
-			return([], [])
-
-
-	#find path working backwards to source
-	if current_box == dest_box:
-		while current_box:
-			path.append((detail_points[prev_box[current_box]], detail_points[current_box]))
-			if prev[current_box] == None:
-				path.append((detail_points[dest_box], destination_point))
-			current_box = prev[current_box]
+				source = (find_detail_points(source, box))
+		detail_points[destBox] = (source, destination)
+		return detail_points.values(), prev.keys()
 	else:
 		print "No path possible!"
 		return ([], [])
 
-	return(path, visited)
+def heuristic(a, b):
+    (x1, y1) = a
+    (x2, y2) = b
+    return abs(x1 - x2) + abs(y1 - y2)
+
+def find_detail_points(current_coords, end_box):
+
+    x, y = current_coords
+
+
+    e_x1 = end_box[0]
+    e_x2 = end_box[1]
+    e_y1 = end_box[2]
+    e_y2 = end_box[3]
+
+    new_x = min(e_x2 - 1, max(e_x1, x))
+    new_y = min(e_y2 - 1, max(e_y1, y))
+
+    return(new_x, new_y)
 
 
 def find_source_box(xy_coord, mesh):
 
-	for box in mesh['boxes']:
+    for box in mesh['boxes']:
 
-		x1 = box[0]
-		x2 = box[1]
-		y1 = box[2]
-		y2 = box[3]
-		start_x, start_y = xy_coord
+        x1 = box[0]
+        x2 = box[1]
+        y1 = box[2]
+        y2 = box[3]
+        start_x, start_y = xy_coord
 
-		if start_x < x2 and start_x > x1:
-			if start_y < y2 and start_y > y1:
-				return box
+        if start_x < x2 and start_x > x1:
+            if start_y < y2 and start_y > y1:
+                return box
 
-def find_detail_points(current_coords, end_box):
+def in_box(a, b):
+	if a[0] >= b[1][0] and a[0] <= b[1][1] and a[1] >= b[1][2] and a[1] <= b[1][3]:
+		return True
+	else:
+		return False
 
-	x, y = current_coords
-	
-	e_x1 = end_box[0]
-	e_x2 = end_box[1]
-	e_y1 = end_box[2]
-	e_y2 = end_box[3]
+def coor_distance(a, b):
+    x1 = a[0]
+    x2 = b[0]
 
-	new_x = min(e_x2 - 1, max(e_x1, x))
-	new_y = min(e_y2 - 1, max(e_y1, y))
+    y1 = a[1]
+    y2 = b[1]
 
-	return(new_x, new_y)
-
-def heuristic(src, dest):
-	x,y = src
-	x1, y1 = dest
-	dx = abs(x - x1)
-	dy = abs(y - y1)
-	return  sqrt(dx * dx + dy * dy)
-
-def cost_path(src, dest):
-	x, y = src
-	x2, y2 = dest
-	return sqrt(x*x2 + y*y2)
+    return sqrt((x1-x2)**2+(y1-y2)**2)
