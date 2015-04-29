@@ -94,11 +94,15 @@ class SlugBrain:
       elif message == 'collide' and details['what'] == 'Nest':
         nest = details['who']
         nest.amount += 0.05
+      elif nest.amount >= 1:
+        self.state = 'idle'
     elif self.state == 'flee':
       nest = self.body.find_nearest('Nest')
       self.body.go_to(nest)
       if message == 'collide' and details['what'] == 'Nest':
         self.body.amount += 0.01
+      elif self.body.amount >= 1:
+        self.state = 'idle'
     elif self.state == 'harvest':
       if self.has_resource == True:
         nest = self.body.find_nearest('Nest')
@@ -108,14 +112,18 @@ class SlugBrain:
         elif message == 'collide' and details['what'] == 'Nest':
           self.has_resource = False
       elif self.has_resource == False:
-        resource = self.body.find_nearest('Resource')
-        if message == 'timer':
+        try:
           resource = self.body.find_nearest('Resource')
-          self.body.go_to(resource)
-        elif message == 'collide' and details['what'] == 'Resource':
-          self.has_resource = True
-          resource = details['who']
-          resource.amount -= 0.25
+          if message == 'timer':
+            resource = self.body.find_nearest('Resource')
+            self.body.go_to(resource)
+          elif message == 'collide' and details['what'] == 'Resource':
+            self.has_resource = True
+            resource = details['who']
+            resource.amount -= 0.25
+        except:
+          self.state = 'idle'
+          print "No more resources."
     self.body.set_alarm(1)
 
 
@@ -124,7 +132,7 @@ world_specification = {
   'worldgen_seed': 13, # comment-out to randomize
   'nests': 2,
   'obstacles': 25,
-  'resources': 5,
+  'resources': 2,
   'slugs': 5,
   'mantises': 5,
 }
