@@ -31,10 +31,10 @@ def search(graph, initial, is_goal, limit, heuristic):
 			break
 		for next in neighbors:
 			name, effect, cost = next
-			new_cost = cost_so_far[current] + cost + heuristic(current, next)
+			new_cost = cost_so_far[current] + cost 
 			if effect not in cost_so_far or (cost_so_far[current] + cost) < cost_so_far[effect]:
 				cost_so_far[effect] = new_cost
-				heappush(queue, (new_cost, effect))
+				heappush(queue, (new_cost+ heuristic(current, next), effect))
 				came_from[effect] = current
 				name_of_neighbor[effect] = name
 				total_time[effect] = cost
@@ -138,7 +138,7 @@ for name, rule in Crafting['Recipes'].items():
 	all_recipes.append(recipe)
 
 limit = 500
-max_inventory = (1,float("inf"),1,8,1,6,1,1,1,7,float("inf"),6,1,1,1,1,1)
+max_inventory = (1,1,1,8,1,6,1,1,1,7,32,6,1,1,1,1,1)
 total_cost, plan, elapsed_time = search(graph, start_state, final_goal, limit, heuristic)
 next_state = ()
 
