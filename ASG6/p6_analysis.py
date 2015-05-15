@@ -8,33 +8,36 @@ def analyze(design):
 	init = sim.get_initial_state()
 	moves = sim.get_moves()
 	next_state = sim.get_next_state(init, moves[0])
-	position, ability = next_state
-	i, j = position
 
 	queue = Queue.Queue()
 	queue.put(next_state)
-	ANALYSIS[position] = None
+	ANALYSIS[next_state] = None
 	while not queue.empty():
 		current = queue.get()
-		p, a = current
 		for i in range(0, 4):
 			next = sim.get_next_state(current, moves[i])
 			if next == None:
 				continue
-			pos, abil = next
-			if pos not in ANALYSIS:
+			if next not in ANALYSIS:
 				queue.put(next)
-				ANALYSIS[pos] = p
+				ANALYSIS[next] = current
 
 def inspect((i,j), draw_line):
-	if (i, j) in ANALYSIS:
-		n = ANALYSIS[(i,j)]
-		draw_line(n, (i, j))
-		path = []
-		while n:
+	path = []
+	for n in ANALYSIS:
+		pos, abil = n
+		if pos == (i, j):
 			path.append(n)
-			if ANALYSIS[n] != None:
-				draw_line(ANALYSIS[n], n)
-			n = ANALYSIS[n]
-	else:
-		print "No path possible."
+
+	for paths in path:
+		current = paths
+		pos, abil = paths
+		while current:
+			if current == None:
+				break
+			elif ANALYSIS[current] == None:
+				break
+			else:
+				p, a = current
+				draw_line(p, ANALYSIS[current][0], abil, paths)
+				current = ANALYSIS[current]
