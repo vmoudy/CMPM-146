@@ -38,6 +38,7 @@ def inspect((i,j), draw_line):
 			elif ANALYSIS[current] == None:
 				break
 			else:
-				p, a = current
-				draw_line(p, ANALYSIS[current][0], abil, paths)
+				p1, a1 = current
+				p2, a2 = ANALYSIS[current]
+				draw_line(p1, p2, abil, paths)
 				current = ANALYSIS[current]
