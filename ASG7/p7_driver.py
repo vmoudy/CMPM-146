@@ -7,17 +7,26 @@ import sys
 def solve(*args):
 	"""Run clingo with the provided argument list and return the 
 	   parsed JSON result."""
-	
-	GRINGO = "./gringo "
-	REIFY = " | ./reify | ./clingo meta.lp metaD.lp metaO.lp metaS.lp --parallel-mode=4 --outf=2"
+	GRINGO = ["gringo"] + list(args)
+	REIFY = ["reify"]
+	CLINGO = ["clingo", "-", "meta.lp", "metaD.lp", "metaO.lp", "metaS.lp", "--parallel-mode=4", "--outf=2"]
+	gringo = subprocess.Popen(
+		GRINGO,
+		stdout=subprocess.PIPE,
+		stderr=subprocess.PIPE)
+	reify = subprocess.Popen(
+		REIFY,
+		stdin=gringo.stdout,
+		stdout=subprocess.PIPE,
+		stderr=subprocess.PIPE)
 	clingo = subprocess.Popen(
-		[GRINGO] + list(args) + [REIFY],
+		CLINGO,
+		stdin=reify.stdout,
 		stdout=subprocess.PIPE,
 		stderr=subprocess.PIPE)
 	out, err = clingo.communicate()
 	if err:
 		print err
-		
 	return parse_json_result(out)
 
 def parse_json_result(out):
@@ -56,7 +65,7 @@ def parse_json_result(out):
 
 def solve_randomly(*args):
 	"""Like solve() but uses a random sign heuristic with a random seed."""
-	args = list(args) #+ ["--sign-def=3","--seed="+str(random.randint(0,1<<30))]
+	args = list(args)
 	return solve(*args)
 
 def render_ascii_dungeon(design):
@@ -91,7 +100,7 @@ def side_by_side(*blocks):
 
 
 if __name__ == "__main__":
-	design = solve_randomly("level-core.lp", "level-style.lp", 
+	design = solve_randomly("-c", "width=7", "level-core.lp", "level-style.lp", 
 							"level-sim.lp", "level-shortcuts.lp")
 
 	print side_by_side(render_ascii_dungeon(design), 
