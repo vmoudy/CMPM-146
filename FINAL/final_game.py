@@ -46,16 +46,17 @@ class MicroDirector:
     self.shots = 0
     self.multiplier = 0
     print "Intensity: Calm"
+    print "Micro-Director is on"
 
   def callback(self):
     if not self.ai_on_off.get():
       self.change_text.set("Micro-Director is on")
       self.ai_on_off.set(1)
-      #print self.ai_on_off.get()
+      print "Micro-Director is on"
     else:
       self.change_text.set("Micro-Director is off")
       self.ai_on_off.set(0)
-      #print self.ai_on_off.get()
+      print "Micro-Director is off"
 
   def bbox(self, obj):
     x, y = obj.position
@@ -241,7 +242,7 @@ class MicroDirector:
 
     def give_ammo():
       if self.ai_on_off.get():
-        if self.ammo_amount <= self.max_ammo and self.accuracy <= 0.5 and self.multiplier == 2:
+        if self.ammo_amount <= self.max_ammo and self.multiplier == 2:
           where = self.bbox(self.player)
           self.multiplier = 1
           if where == "q1":
@@ -733,7 +734,6 @@ class Player(GameObject):
     self.speed = 200
     self.radius = 20
     self.color = 'blue'
-    self.ammo = world.ammo.get()
 
 class Zombie(GameObject):
   """zombies eat brains!!!""" 
@@ -771,7 +771,7 @@ master.title("2D Survival/Shooter Prototype with Micro-Director AI")
 
 world = MicroDirector(CANVAS_WIDTH, CANVAS_WIDTH)
 world.populate(final_brains.world_specification, final_brains.brain_classes)
-
+print "Ammo: " + str(world.ammo.get())
 canvas = Tkinter.Canvas(master, width=CANVAS_WIDTH, height=CANVAS_HEIGHT) 
 canvas.grid(row=0, column=0)
 
@@ -793,6 +793,7 @@ def left_button_down(event):
   world.sel_b = (event.x, event.y)
   if world.ammo.get():
     world.ammo.set(world.ammo.get() - 1)
+    print "Ammo: " + str(world.ammo.get())
     world.shoot()
 
 def right_button_double(event):
