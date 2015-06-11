@@ -6,10 +6,12 @@ class ZombieBrain:
   def __init__(self, body):
     self.body = body
     self.state = self.body.world.zombie_state
-    self.target = None    
+    self.target = None
+    self.in_attack = False
 
   def handle_event(self, message, details):
-    self.state = self.body.world.zombie_state
+    if not self.in_attack:
+      self.state = self.body.world.zombie_state
 
     if not self.body.world.player_alive:
       self.state = "curious"
@@ -24,7 +26,8 @@ class ZombieBrain:
       elif message == 'collide' and details['what'] == 'Player':
         # a slug bumped into us; get curious
         player = details['who']
-        player.amount -= 0.01 
+        self.state = "attack"
+        self.in_attack = True
 
     elif self.state == "attack":
       self.body.follow(self.body.world.player)
@@ -32,7 +35,7 @@ class ZombieBrain:
       if message == 'collide' and details['what'] == 'Player':
         # we meet again!
         player = details['who']
-        player.amount -= 0.01 # take a tiny little bite
+        player.amount -= 0.001 # take a tiny little bite
     
 class PlayerBrain:
 
