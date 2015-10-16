@@ -1,1 +1,1 @@
-A 2D survival/shooter prototype with micro-director ai
+A 2D survival/shooter prototype with micro-director AI. Enemy AI state is controlled by the director. The director controls everything in the game except for the player. Enemy spawn rate, location, intensity, behavior (passive or aggresive) are all controlled by the director which takes into account player health, accuracy, location, current intensity level, and current enemy behavior. 
