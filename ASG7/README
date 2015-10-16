@@ -1,0 +1,1 @@
+Dungeon crawler with constraints. The program creates random generated levels that has an walls, traps, entry, key, and exit. Then it is tested to see if that map is possible to play, i.e. key isn't stuck behind a wall, too many traps, no exit or entry, etc. Can also use constraints like player has to walk over trap no matter what using prolog. 
